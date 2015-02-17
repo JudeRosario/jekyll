@@ -7,7 +7,7 @@ class TestTags < Test::Unit::TestCase
   def create_post(content, override = {}, converter_class = Jekyll::Converters::Markdown)
     stub(Jekyll).configuration do
       site_configuration({
-        "highlighter" => "pygments"
+        "highlighter" => "rouge"
       }.merge(override))
     end
     site = Site.new(Jekyll.configuration)
@@ -43,6 +43,10 @@ CONTENT
     create_post(content, override)
   end
 
+  def highlight_block_with_opts(options_string)
+    Jekyll::Tags::HighlightBlock.parse('highlight', options_string, ["test", "{% endhighlight %}", "\n"], {})
+  end
+
   context "language name" do
     should "match only the required set of chars" do
       r = Jekyll::Tags::HighlightBlock::SYNTAX
@@ -59,37 +63,51 @@ CONTENT
     end
   end
 
-  context "initialized tag" do
-    should "set the correct options" do
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby ', ["test", "{% endhighlight %}", "\n"])
+  context "highlight tag in unsafe mode" do
+    should "set the no options with just a language name" do
+      tag = highlight_block_with_opts('ruby ')
       assert_equal({}, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos ', ["test", "{% endhighlight %}", "\n"])
+    should "set the linenos option as 'inline' if no linenos value" do
+      tag = highlight_block_with_opts('ruby linenos ')
       assert_equal({ :linenos => 'inline' }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table ', ["test", "{% endhighlight %}", "\n"])
+    should "set the linenos option to 'table' if the linenos key is given the table value" do
+      tag = highlight_block_with_opts('ruby linenos=table ')
       assert_equal({ :linenos => 'table' }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table nowrap', ["test", "{% endhighlight %}", "\n"])
+    should "recognize nowrap option with linenos set" do
+      tag = highlight_block_with_opts('ruby linenos=table nowrap ')
       assert_equal({ :linenos => 'table', :nowrap => true }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl', ["test", "{% endhighlight %}", "\n"])
+    should "recognize the cssclass option" do
+      tag = highlight_block_with_opts('ruby linenos=table cssclass=hl ')
       assert_equal({ :cssclass => 'hl', :linenos => 'table' }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl hl_linenos=3', ["test", "{% endhighlight %}", "\n"])
+    should "recognize the hl_linenos option and its value" do
+      tag = highlight_block_with_opts('ruby linenos=table cssclass=hl hl_linenos=3 ')
       assert_equal({ :cssclass => 'hl', :linenos => 'table', :hl_linenos => '3' }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl hl_linenos="3 5 6"', ["test", "{% endhighlight %}", "\n"])
+    should "recognize multiple values of hl_linenos" do
+      tag = highlight_block_with_opts('ruby linenos=table cssclass=hl hl_linenos="3 5 6" ')
       assert_equal({ :cssclass => 'hl', :linenos => 'table', :hl_linenos => ['3', '5', '6'] }, tag.instance_variable_get(:@options))
+    end
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'Ruby ', ["test", "{% endhighlight %}", "\n"])
+    should "treat language name as case insensitive" do
+      tag = highlight_block_with_opts('Ruby ')
       assert_equal "ruby", tag.instance_variable_get(:@lang), "lexers should be case insensitive"
     end
   end
 
   context "in safe mode" do
     setup do
-      @tag = Jekyll::Tags::HighlightBlock.new('highlight', 'text ', ["test", "{% endhighlight %}", "\n"])
+      @tag = highlight_block_with_opts('text ')
     end
 
     should "allow linenos" do
@@ -118,41 +136,202 @@ CONTENT
     end
   end
 
-  context "post content has highlight tag" do
-    setup do
-      fill_post("test")
+  context "with the pygments highlighter" do
+    context "post content has highlight tag" do
+      setup do
+        fill_post("test", {'highlighter' => 'pygments'})
+      end
+
+      should "not cause a markdown error" do
+        assert_no_match /markdown\-html\-error/, @result
+      end
+
+      should "render markdown with pygments" do
+        assert_match %{<pre><code class="language-text" data-lang="text">test</code></pre>}, @result
+      end
+
+      should "render markdown with pygments with line numbers" do
+        assert_match %{<pre><code class="language-text" data-lang="text"><span class="lineno">1</span> test</code></pre>}, @result
+      end
     end
 
-    should "not cause a markdown error" do
-      assert_no_match /markdown\-html\-error/, @result
+    context "post content has highlight with file reference" do
+      setup do
+        fill_post("./jekyll.gemspec", {'highlighter' => 'pygments'})
+      end
+
+      should "not embed the file" do
+        assert_match %{<pre><code class="language-text" data-lang="text">./jekyll.gemspec</code></pre>}, @result
+      end
     end
 
-    should "render markdown with pygments" do
-      assert_match %{<pre><code class="language-text" data-lang="text">test</code></pre>}, @result
+    context "post content has highlight tag with UTF character" do
+      setup do
+        fill_post("Æ", {'highlighter' => 'pygments'})
+      end
+
+      should "render markdown with pygments line handling" do
+        assert_match %{<pre><code class="language-text" data-lang="text">Æ</code></pre>}, @result
+      end
     end
 
-    should "render markdown with pygments with line numbers" do
-      assert_match %{<pre><code class="language-text" data-lang="text"><span class="lineno">1</span> test</code></pre>}, @result
+    context "post content has highlight tag with preceding spaces & lines" do
+      setup do
+        code = <<-EOS
+
+
+     [,1] [,2]
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+EOS
+        fill_post(code, {'highlighter' => 'pygments'})
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
+    end
+
+    context "post content has highlight tag with preceding spaces & lines in several places" do
+      setup do
+        code = <<-EOS
+
+
+     [,1] [,2]
+
+
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+
+
+EOS
+        fill_post(code, {'highlighter' => 'pygments'})
+      end
+
+      should "only strip the newlines which precede and succeed the entire block" do
+        assert_match "<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]\n\n\n[1,] FALSE TRUE\n[2,] FALSE TRUE</code></pre>", @result
+      end
+    end
+
+    context "post content has highlight tag with preceding spaces & Windows-style newlines" do
+      setup do
+        fill_post "\r\n\r\n\r\n     [,1] [,2]", {'highlighter' => 'pygments'}
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
+    end
+
+    context "post content has highlight tag with only preceding spaces" do
+      setup do
+        code = <<-EOS
+     [,1] [,2]
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+EOS
+        fill_post(code, {'highlighter' => 'pygments'})
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
     end
   end
 
-  context "post content has highlight with file reference" do
-    setup do
-      fill_post("./jekyll.gemspec")
+  context "with the rouge highlighter" do
+    context "post content has highlight tag" do
+      setup do
+        fill_post("test")
+      end
+
+      should "render markdown with rouge" do
+        assert_match %{<pre><code class="language-text" data-lang="text">test</code></pre>}, @result
+      end
+
+      should "render markdown with rouge with line numbers" do
+        assert_match %{<table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre>test<span class="w">\n</span></pre></td></tr></tbody></table>}, @result
+      end
     end
 
-    should "not embed the file" do
-      assert_match %{<pre><code class="language-text" data-lang="text">./jekyll.gemspec</code></pre>}, @result
-    end
-  end
+    context "post content has highlight with file reference" do
+      setup do
+        fill_post("./jekyll.gemspec")
+      end
 
-  context "post content has highlight tag with UTF character" do
-    setup do
-      fill_post("Æ")
+      should "not embed the file" do
+        assert_match %{<pre><code class="language-text" data-lang="text">./jekyll.gemspec</code></pre>}, @result
+      end
     end
 
-    should "render markdown with pygments line handling" do
-      assert_match %{<pre><code class="language-text" data-lang="text">Æ</code></pre>}, @result
+    context "post content has highlight tag with UTF character" do
+      setup do
+        fill_post("Æ")
+      end
+
+      should "render markdown with pygments line handling" do
+        assert_match %{<pre><code class="language-text" data-lang="text">Æ</code></pre>}, @result
+      end
+    end
+
+    context "post content has highlight tag with preceding spaces & lines" do
+      setup do
+        fill_post <<-EOS
+
+
+     [,1] [,2]
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+EOS
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
+    end
+
+    context "post content has highlight tag with preceding spaces & lines in several places" do
+      setup do
+        fill_post <<-EOS
+
+
+     [,1] [,2]
+
+
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+
+
+EOS
+      end
+
+      should "only strip the newlines which precede and succeed the entire block" do
+        assert_match "<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]\n\n\n[1,] FALSE TRUE\n[2,] FALSE TRUE</code></pre>", @result
+      end
+    end
+
+    context "post content has highlight tag with preceding spaces & Windows-style newlines" do
+      setup do
+        fill_post "\r\n\r\n\r\n     [,1] [,2]"
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
+    end
+
+    context "post content has highlight tag with only preceding spaces" do
+      setup do
+        fill_post <<-EOS
+     [,1] [,2]
+[1,] FALSE TRUE
+[2,] FALSE TRUE
+EOS
+      end
+
+      should "only strip the preceding newlines" do
+        assert_match %{<pre><code class=\"language-text\" data-lang=\"text\">     [,1] [,2]}, @result
+      end
     end
   end
 
@@ -171,17 +350,6 @@ puts "3..2..1.."
 
 *FINISH HIM*
 CONTENT
-    end
-
-    context "using Textile" do
-      setup do
-        create_post(@content, {}, Jekyll::Converters::Textile)
-      end
-
-      # Broken in RedCloth 4.1.9
-      should "not textilize highlight block" do
-        assert_no_match %r{3\.\.2\.\.1\.\.&quot;</span><br />}, @result
-      end
     end
 
     context "using Maruku" do
@@ -301,7 +469,7 @@ CONTENT
     context "with symlink'd include" do
 
       should "not allow symlink includes" do
-        File.open("/tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
+        File.open("tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
         assert_raise IOError do
           content = <<CONTENT
 ---
@@ -592,7 +760,7 @@ CONTENT
     context "with symlink'd include" do
 
       should "not allow symlink includes" do
-        File.open("/tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
+        File.open("tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
         assert_raise IOError do
           content = <<CONTENT
 ---

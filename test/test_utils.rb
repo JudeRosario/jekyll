@@ -120,6 +120,7 @@ class TestUtils < Test::Unit::TestCase
 
     should "drop trailing punctuation" do
       assert_equal "so-what-is-jekyll-exactly", Utils.slugify("So what is Jekyll, exactly?")
+      assert_equal "كيف-حالك", Utils.slugify("كيف حالك؟")
     end
 
     should "ignore hyphens" do
@@ -134,10 +135,34 @@ class TestUtils < Test::Unit::TestCase
       assert_equal "customizing-git-git-hooks", Utils.slugify("Customizing Git - Git Hooks")
     end
 
+    should "replace punctuation in any scripts by hyphens" do
+      assert_equal "5時-6時-三-一四", Utils.slugify("5時〜6時 三・一四")
+    end
+
     should "not modify the original string" do
       title = "Quick-start guide"
       Utils.slugify(title)
       assert_equal "Quick-start guide", title
+    end
+
+    should "not change behaviour if mode is default" do
+      assert_equal "the-config-yml-file", Utils.slugify("The _config.yml file?", "default")
+    end
+
+    should "not change behaviour if mode is nil" do
+      assert_equal "the-config-yml-file", Utils.slugify("The _config.yml file?", nil)
+    end
+
+    should "not replace period and underscore if mode is pretty" do
+      assert_equal "the-_config.yml-file", Utils.slugify("The _config.yml file?", "pretty")
+    end
+
+    should "only replace whitespace if mode is raw" do
+      assert_equal "the-_config.yml-file?", Utils.slugify("The _config.yml file?", "raw")
+    end
+
+    should "return the given string if mode is none" do
+      assert_equal "the _config.yml file?", Utils.slugify("The _config.yml file?", "none")
     end
   end
 

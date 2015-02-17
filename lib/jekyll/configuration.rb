@@ -21,7 +21,7 @@ module Jekyll
       'keep_files'    => ['.git','.svn'],
       'encoding'      => 'utf-8',
       'markdown_ext'  => 'markdown,mkdown,mkdn,mkd,md',
-      'textile_ext'   => 'textile',
+      'full_rebuild'  => false,
 
       # Filtering Content
       'show_drafts'   => nil,
@@ -35,7 +35,7 @@ module Jekyll
 
       # Conversion
       'markdown'      => 'kramdown',
-      'highlighter'   => 'pygments',
+      'highlighter'   => 'rouge',
       'lsi'           => false,
       'excerpt_separator' => "\n\n",
 
@@ -74,12 +74,12 @@ module Jekyll
       },
 
       'kramdown' => {
-        'auto_ids'      => true,
-        'footnote_nr'   => 1,
-        'entity_output' => 'as_char',
-        'toc_levels'    => '1..6',
-        'smart_quotes'  => 'lsquo,rsquo,ldquo,rdquo',
-        'use_coderay'   => false,
+        'auto_ids'       => true,
+        'footnote_nr'    => 1,
+        'entity_output'  => 'as_char',
+        'toc_levels'     => '1..6',
+        'smart_quotes'   => 'lsquo,rsquo,ldquo,rdquo',
+        'enable_coderay' => false,
 
         'coderay' => {
           'coderay_wrap'              => 'div',
@@ -89,10 +89,6 @@ module Jekyll
           'coderay_bold_every'        => 10,
           'coderay_css'               => 'style'
         }
-      },
-
-      'redcloth' => {
-        'hard_breaks' => true
       }
     }
 
@@ -119,6 +115,7 @@ module Jekyll
     def safe_load_file(filename)
       case File.extname(filename)
       when /\.toml/i
+        Jekyll::External.require_with_graceful_fail('toml') unless defined?(TOML)
         TOML.load_file(filename)
       when /\.ya?ml/i
         SafeYAML.load_file(filename)
@@ -253,10 +250,22 @@ module Jekyll
         config[option].map!(&:to_s)
       end
 
+      if (config['kramdown'] || {}).key?('use_coderay')
+        Jekyll::Deprecator.deprecation_message "Please change 'use_coderay'" +
+          " to 'enable_coderay' in your configuration file."
+        config['kramdown']['use_coderay'] = config['kramdown'].delete('enable_coderay')
+      end
+
       if config.fetch('markdown', 'kramdown').to_s.downcase.eql?("maruku")
         Jekyll::Deprecator.deprecation_message "You're using the 'maruku' " +
           "Markdown processor. Maruku support has been deprecated and will " +
           "be removed in 3.0.0. We recommend you switch to Kramdown."
+      end
+
+      if config.key?('paginate') && config['paginate'] && !(config['gems'] || []).include?('jekyll-paginate')
+        Jekyll::Deprecator.deprecation_message "You appear to have pagination " +
+          "turned on, but you haven't included the `jekyll-paginate` gem. " +
+          "Ensure you have `gems: [jekyll-paginate]` in your configuration file."
       end
       config
     end

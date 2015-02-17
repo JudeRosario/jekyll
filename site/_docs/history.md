@@ -2,8 +2,71 @@
 layout: docs
 title: History
 permalink: "/docs/history/"
-prev_section: contributing
 ---
+
+## 2.5.3 / 2014-12-22
+{: #v2-5-3}
+
+### Bug Fixes
+{: #bug-fixes-v2-5-3}
+
+- When checking a Markdown extname, include position of the `.` ([#3147]({{ site.repository }}/issues/3147))
+- Fix `jsonify` Liquid filter handling of boolean values ([#3154]({{ site.repository }}/issues/3154))
+- Add comma to value of `viewport` meta tag ([#3170]({{ site.repository }}/issues/3170))
+- Set the link type for the RSS feed to `application/rss+xml` ([#3176]({{ site.repository }}/issues/3176))
+- Refactor `#as_liquid` ([#3158]({{ site.repository }}/issues/3158))
+
+### Development Fixes
+{: #development-fixes-v2-5-3}
+
+- Exclude built-in bundles from being added to coverage report ([#3180]({{ site.repository }}/issues/3180))
+
+### Site Enhancements
+{: #site-enhancements-v2-5-3}
+
+- Add `[@alfredxing](https://github.com/alfredxing)` to the `[@jekyll](https://github.com/jekyll)/core` team. :tada: ([#3218]({{ site.repository }}/issues/3218))
+- Document the `-q` option for the `build` and `serve` commands ([#3149]({{ site.repository }}/issues/3149))
+- Fix some minor typos/flow fixes in documentation website content ([#3165]({{ site.repository }}/issues/3165))
+- Add `keep_files` to configuration documentation ([#3162]({{ site.repository }}/issues/3162))
+- Repeat warning about cleaning of the `destination` directory ([#3161]({{ site.repository }}/issues/3161))
+- Add jekyll-500px-embed to list of third-party plugins ([#3163]({{ site.repository }}/issues/3163))
+- Simplified platform detection in Gemfile example for Windows ([#3177]({{ site.repository }}/issues/3177))
+- Add the `jekyll-jalali` plugin added to the list of third-party plugins. ([#3198]({{ site.repository }}/issues/3198))
+- Add Table of Contents to Troubleshooting page ([#3196]({{ site.repository }}/issues/3196))
+- Add `inline_highlight` plugin to list of third-party plugins ([#3212]({{ site.repository }}/issues/3212))
+- Add `jekyll-mermaid` plugin to list of third-party plugins ([#3222]({{ site.repository }}/issues/3222))
+
+
+## 2.5.2 / 2014-11-17
+{: #v2-5-2}
+
+### Minor Enhancements
+{: #minor-enhancements-v2-5-2}
+
+- `post_url` should match `post.name` instead of slugs and dates ([#3058]({{ site.repository }}/issues/3058))
+
+### Bug Fixes
+{: #bug-fixes-v2-5-2}
+
+- Fix bundle require for `:jekyll_plugins` ([#3119]({{ site.repository }}/issues/3119))
+- Remove duplicate regexp phrase: `^\A` ([#3089]({{ site.repository }}/issues/3089))
+- Remove duplicate `Conversion error:` message in `Convertible` ([#3088]({{ site.repository }}/issues/3088))
+- Print full conversion error message in `Renderer#convert` ([#3090]({{ site.repository }}/issues/3090))
+
+### Site Enhancements
+{: #site-enhancements-v2-5-2}
+
+- Change variable names in Google Analytics script ([#3093]({{ site.repository }}/issues/3093))
+- Mention CSV files in the docs for data files ([#3101]({{ site.repository }}/issues/3101))
+- Add trailing slash to `paginate_path` example. ([#3091]({{ site.repository }}/issues/3091))
+- Get rid of noifniof (`excerpt_separator`) ([#3094]({{ site.repository }}/issues/3094))
+- Sass improvements, around nesting mostly. ([#3123]({{ site.repository }}/issues/3123))
+- Add webmentions.io plugin to the list of third-party plugins ([#3127]({{ site.repository }}/issues/3127))
+- Add Sass mixins and use them. ([#2904]({{ site.repository }}/issues/2904))
+- Slightly compress jekyll-sticker.jpg. ([#3133]({{ site.repository }}/issues/3133))
+- Update gridism and separate out related but custom styles. ([#3132]({{ site.repository }}/issues/3132))
+- Add remote-include plugin to list of third-party plugins ([#3136]({{ site.repository }}/issues/3136))
+
 
 ## 2.5.1 / 2014-11-09
 {: #v2-5-1}
@@ -486,7 +549,7 @@ prev_section: contributing
 - Add `Jekyll::LiquidExtensions` with `.lookup_variable` method for easy
     looking up of variable values in a Liquid context. ([#2253]({{ site.repository }}/issues/2253))
 - Remove literal lang name from class ([#2292]({{ site.repository }}/issues/2292))
-- Return `utf-8` encoding in header for  webrick error page response ([#2289]({{ site.repository }}/issues/2289))
+- Return `utf-8` encoding in header for webrick error page response ([#2289]({{ site.repository }}/issues/2289))
 - Make template site easier to customize ([#2268]({{ site.repository }}/issues/2268))
 - Add two-digit year to permalink template option ([#2301]({{ site.repository }}/issues/2301))
 - Add `site.documents` to Liquid payload (list of all docs) ([#2295]({{ site.repository }}/issues/2295))

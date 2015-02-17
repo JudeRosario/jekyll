@@ -7,6 +7,8 @@ module Jekyll
     attr_reader   :path, :site, :extname
     attr_accessor :content, :collection, :output
 
+    YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m
+
     # Create a new Document.
     #
     # site - the Jekyll::Site instance to which this Document belongs
@@ -130,7 +132,7 @@ module Jekyll
         path:       cleaned_relative_path,
         output_ext: Jekyll::Renderer.new(site, self).output_ext,
         name:       Utils.slugify(basename_without_ext),
-        title:      Utils.slugify(data['title']) || Utils.slugify(basename_without_ext)
+        title:      Utils.slugify(data['slug']) || Utils.slugify(basename_without_ext)
       }
     end
 
@@ -160,7 +162,7 @@ module Jekyll
     # Returns the full path to the output file of this document.
     def destination(base_directory)
       dest = site.in_dest_dir(base_directory)
-      path = site.in_dest_dir(dest, url)
+      path = site.in_dest_dir(dest, URL.unescape_path(url))
       path = File.join(path, "index.html") if url =~ /\/$/
       path
     end
@@ -210,7 +212,7 @@ module Jekyll
             @data = defaults
           end
           @content = File.read(path, merged_file_read_opts(opts))
-          if content =~ /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
+          if content =~ YAML_FRONT_MATTER_REGEXP
             @content = $POSTMATCH
             data_file = SafeYAML.load($1)
             unless data_file.nil?
@@ -233,8 +235,8 @@ module Jekyll
         Utils.deep_merge_hashes data, {
           "output"        => output,
           "content"       => content,
-          "path"          => path,
           "relative_path" => relative_path,
+          "path"          => relative_path,
           "url"           => url,
           "collection"    => collection.label
         }

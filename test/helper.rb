@@ -1,15 +1,16 @@
 require 'simplecov'
 require 'simplecov-gem-adapter'
-SimpleCov.start('gem')
+SimpleCov.start('gem') do
+  add_filter "/vendor/bundle"
+  add_filter "/vendor/gem"
+end
 
 require 'rubygems'
 require 'test/unit'
 require 'ostruct'
-gem 'RedCloth', '>= 4.2.1'
 
 require 'jekyll'
 
-require 'RedCloth'
 require 'rdiscount'
 require 'kramdown'
 require 'redcarpet'
@@ -25,6 +26,10 @@ STDERR.reopen(test(?e, '/dev/null') ? '/dev/null' : 'NUL:')
 class Test::Unit::TestCase
   include RR::Adapters::TestUnit
 
+  def fixture_site(overrides = {})
+    Jekyll::Site.new(site_configuration(overrides))
+  end
+
   def build_configs(overrides, base_hash = Jekyll::Configuration::DEFAULTS)
     Utils.deep_merge_hashes(base_hash, overrides)
   end
@@ -32,7 +37,7 @@ class Test::Unit::TestCase
   def site_configuration(overrides = {})
     full_overrides = build_configs(overrides, build_configs({"destination" => dest_dir}))
     build_configs({
-      "source"      => source_dir,
+      "source" => source_dir
     }, full_overrides)
   end
 
@@ -46,6 +51,7 @@ class Test::Unit::TestCase
 
   def clear_dest
     FileUtils.rm_rf(dest_dir)
+    FileUtils.rm_rf(source_dir('.jekyll-metadata'))
   end
 
   def test_dir(*subdirs)

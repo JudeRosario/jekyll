@@ -2,6 +2,12 @@ module Jekyll
   module Utils
     extend self
 
+    # Constants for use in #slugify
+    SLUGIFY_MODES = %w{raw default pretty}
+    SLUGIFY_RAW_REGEXP = Regexp.new('\\s+').freeze
+    SLUGIFY_DEFAULT_REGEXP = Regexp.new('[^[:alnum:]]+').freeze
+    SLUGIFY_PRETTY_REGEXP = Regexp.new("[^[:alnum:]._~!$&'()+,;=@]+").freeze
+
     # Merges a master hash with another hash, recursively.
     #
     # master_hash - the "parent" hash whose values will be overridden
@@ -90,7 +96,7 @@ module Jekyll
     # Returns the parsed date if successful, throws a FatalException
     # if not
     def parse_date(input, msg = "Input could not be parsed.")
-      Time.parse(input)
+      Time.parse(input).localtime
     rescue ArgumentError
       raise Errors::FatalException.new("Invalid date '#{input}': " + msg)
     end
@@ -104,21 +110,52 @@ module Jekyll
 
     # Slugify a filename or title.
     #
-    # name - the filename or title to slugify
+    # string - the filename or title to slugify
+    # mode - how string is slugified
     #
-    # Returns the given filename or title in lowercase, with every
-    # sequence of spaces and non-alphanumeric characters replaced with a
-    # hyphen.
-    def slugify(string)
-      unless string.nil?
-        string \
-          # Replace each non-alphanumeric character sequence with a hyphen
-          .gsub(/[^a-z0-9]+/i, '-') \
-          # Remove leading/trailing hyphen
-          .gsub(/^\-|\-$/i, '') \
-          # Downcase it
-          .downcase
+    # When mode is "none", return the given string in lowercase.
+    #
+    # When mode is "raw", return the given string in lowercase,
+    # with every sequence of spaces characters replaced with a hyphen.
+    #
+    # When mode is "default" or nil, non-alphabetic characters are
+    # replaced with a hyphen too.
+    #
+    # When mode is "pretty", some non-alphabetic characters (._~!$&'()+,;=@)
+    # are not replaced with hyphen.
+    #
+    # Examples:
+    #   slugify("The _config.yml file")
+    #   # => "the-config-yml-file"
+    #
+    #   slugify("The _config.yml file", "pretty")
+    #   # => "the-_config.yml-file"
+    #
+    # Returns the slugified string.
+    def slugify(string, mode=nil)
+      mode ||= 'default'
+      return nil if string.nil?
+      return string.downcase unless SLUGIFY_MODES.include?(mode)
+
+      # Replace each character sequence with a hyphen
+      re = case mode
+      when 'raw'
+        SLUGIFY_RAW_REGEXP
+      when 'default'
+        SLUGIFY_DEFAULT_REGEXP
+      when 'pretty'
+        # "._~!$&'()+,;=@" is human readable (not URI-escaped) in URL
+        # and is allowed in both extN and NTFS.
+        SLUGIFY_PRETTY_REGEXP
       end
+
+      string.
+        # Strip according to the mode
+        gsub(re, '-').
+        # Remove leading/trailing hyphen
+        gsub(/^\-|\-$/i, '').
+        # Downcase
+        downcase
     end
 
   end

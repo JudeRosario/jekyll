@@ -44,8 +44,32 @@ class TestDocument < Test::Unit::TestCase
       }, @document.data)
     end
 
+    context "with YAML ending in three dots" do
+
+      setup do
+        @site = Site.new(Jekyll.configuration({
+          "collections" => ["methods"],
+          "source"      => source_dir,
+          "destination" => dest_dir
+        }))
+        @site.process
+        @document = @site.collections["methods"].docs.last
+      end
+
+      should "know its data" do
+        assert_equal({
+          "title" => "YAML with Dots",
+          "whatever" => "foo.bar"
+          }, @document.data)
+      end
+    end
+
     should "output the collection name in the #to_liquid method" do
       assert_equal @document.to_liquid['collection'], "methods"
+    end
+
+    should "output its relative path as path in Liquid" do
+      assert_equal @document.to_liquid['path'], "_methods/configuration.md"
     end
 
   end
@@ -225,15 +249,48 @@ class TestDocument < Test::Unit::TestCase
       }))
       @site.process
       @document = @site.collections["slides"].docs[3]
-      @document_without_title = @site.collections["slides"].docs[4]
+      @document_without_slug = @site.collections["slides"].docs[4]
+      @document_with_strange_slug = @site.collections["slides"].docs[5]
     end
 
-    should "produce the right URL if they have a title" do
+    should "produce the right URL if they have a slug" do
       assert_equal "/slides/so-what-is-jekyll-exactly", @document.url
     end
 
-    should "produce the right URL if they don't have a title" do
-      assert_equal "/slides/example-slide-5", @document_without_title.url
+    should "produce the right URL if they don't have a slug" do
+      assert_equal "/slides/example-slide-5", @document_without_slug.url
+    end
+
+    should "produce the right URL if they have a wild slug" do
+      assert_equal "/slides/well-so-what-is-jekyll-then", @document_with_strange_slug.url
+    end
+  end
+
+  context "documents in a collection" do
+    setup do
+      @site = Site.new(Jekyll.configuration({
+        "collections" => {
+          "slides" => {
+            "output" => true
+          }
+        },
+        "source"      => source_dir,
+        "destination" => dest_dir
+      }))
+      @site.process
+      @files = @site.collections["slides"].docs
+    end
+
+    context "without output overrides" do
+      should "be output according to collection defaults" do
+        assert_not_nil @files.find { |doc| doc.relative_path == "_slides/example-slide-4.html" }
+      end
+    end
+
+    context "with output overrides" do
+      should "be output according its front matter" do
+        assert_nil @files.find { |doc| doc.relative_path == "_slides/non-outputted-slide.html" }
+      end
     end
   end
 
@@ -245,8 +302,9 @@ class TestDocument < Test::Unit::TestCase
             "output" => true
           }
         },
-        "source"      => source_dir,
-        "destination" => dest_dir
+        "source"       => source_dir,
+        "destination"  => dest_dir,
+        "full_rebuild" => true
       }))
       @site.process
       @document = @site.collections["slides"].files.find { |doc| doc.relative_path == "_slides/octojekyll.png" }
@@ -268,6 +326,36 @@ class TestDocument < Test::Unit::TestCase
     should "be output in the correct place" do
       assert_equal true, File.file?(@dest_file)
     end
+  end
+
+  context "a document in a collection with non-alphabetic file name" do
+    setup do
+      @site = Site.new(Jekyll.configuration({
+        "collections" => {
+          "methods" => {
+            "output" => true
+          }
+        },
+        "source"      => source_dir,
+        "destination" => dest_dir
+      }))
+      @site.process
+      @document = @site.collections["methods"].docs.find { |doc| doc.relative_path == "_methods/escape-+ #%20[].md" }
+      @dest_file = dest_dir("methods/escape-+ #%20[].html")
+    end
+
+    should "produce the right URL" do
+      assert_equal "/methods/escape-+%20%23%2520%5B%5D.html", @document.url
+    end
+
+    should "produce the right destination" do
+      assert_equal @dest_file, @document.destination(dest_dir)
+    end
+
+    should "be output in the correct place" do
+      assert_equal true, File.file?(@dest_file)
+    end
+
   end
 
 end

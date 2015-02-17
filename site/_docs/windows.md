@@ -1,8 +1,6 @@
 ---
 layout: docs
 title: Jekyll on Windows
-prev_section: configuration
-next_section: posts
 permalink: /docs/windows/
 ---
 
@@ -39,6 +37,5 @@ built-in support for UNIX systems, it requires an extra gem for compatibility
 with Windows. Add the following to the Gemfile for your site:
 
 {% highlight ruby %}
-require 'rbconfig'
-gem 'wdm', '~> 0.1.0' if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
+gem 'wdm', '~> 0.1.0' if Gem.win_platform?
 {% endhighlight %}
