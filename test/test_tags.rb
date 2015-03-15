@@ -2,15 +2,10 @@
 
 require 'helper'
 
-class TestTags < Test::Unit::TestCase
+class TestTags < JekyllUnitTest
 
   def create_post(content, override = {}, converter_class = Jekyll::Converters::Markdown)
-    stub(Jekyll).configuration do
-      site_configuration({
-        "highlighter" => "rouge"
-      }.merge(override))
-    end
-    site = Site.new(Jekyll.configuration)
+    site = fixture_site({"highlighter" => "rouge"}.merge(override))
 
     if override['read_posts']
       site.read_posts('')
@@ -56,7 +51,7 @@ CONTENT
       assert_match r, "x.y"
       assert_match r, "coffee-script"
 
-      assert_no_match r, "blah^"
+      refute_match r, "blah^"
 
       assert_match r, "ruby key=val"
       assert_match r, "ruby a=b c=d"
@@ -143,7 +138,7 @@ CONTENT
       end
 
       should "not cause a markdown error" do
-        assert_no_match /markdown\-html\-error/, @result
+        refute_match /markdown\-html\-error/, @result
       end
 
       should "render markdown with pygments" do
@@ -410,7 +405,7 @@ CONTENT
     end
 
     should "not cause an error" do
-      assert_no_match /markdown\-html\-error/, @result
+      refute_match /markdown\-html\-error/, @result
     end
 
     should "have the url to the \"complex\" post from 2008-11-21" do
@@ -434,7 +429,7 @@ CONTENT
     end
 
     should "not cause an error" do
-      assert_no_match /markdown\-html\-error/, @result
+      refute_match /markdown\-html\-error/, @result
     end
 
     should "have the url to the \"complex\" post from 2008-11-21" do
@@ -458,7 +453,7 @@ title: Invalid post name linking
 {% post_url abc2008-11-21-complex %}
 CONTENT
 
-      assert_raise ArgumentError do
+      assert_raises ArgumentError do
         create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
       end
     end
@@ -470,7 +465,7 @@ CONTENT
 
       should "not allow symlink includes" do
         File.open("tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
-        assert_raise IOError do
+        assert_raises IOError do
           content = <<CONTENT
 ---
 title: Include symlink
@@ -481,11 +476,11 @@ title: Include symlink
 CONTENT
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true, 'safe' => true })
         end
-        assert_no_match /SYMLINK TEST/, @result
+        refute_match /SYMLINK TEST/, @result
       end
 
       should "not expose the existence of symlinked files" do
-        ex = assert_raise IOError do
+        ex = assert_raises IOError do
           content = <<CONTENT
 ---
 title: Include symlink
@@ -532,7 +527,7 @@ title: Invalid parameter syntax
 
 {% include params.html param s="value" %}
 CONTENT
-        assert_raise ArgumentError, 'Did not raise exception on invalid "include" syntax' do
+        assert_raises ArgumentError, 'Did not raise exception on invalid "include" syntax' do
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
         end
 
@@ -543,7 +538,7 @@ title: Invalid parameter syntax
 
 {% include params.html params="value %}
 CONTENT
-        assert_raise ArgumentError, 'Did not raise exception on invalid "include" syntax' do
+        assert_raises ArgumentError, 'Did not raise exception on invalid "include" syntax' do
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
         end
       end
@@ -636,7 +631,7 @@ CONTENT
       end
 
       should "raise error relative to source directory" do
-        exception = assert_raise IOError do
+        exception = assert_raises IOError do
           create_post(@content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
         end
         assert_equal 'Included file \'_includes/missing.html\' not found', exception.message
@@ -645,11 +640,7 @@ CONTENT
 
     context "include tag with variable and liquid filters" do
       setup do
-        stub(Jekyll).configuration do
-          site_configuration({'pygments' => true})
-        end
-
-        site = Site.new(Jekyll.configuration)
+        site = fixture_site({'pygments' => true})
         post = Post.new(site, source_dir, '', "2013-12-17-include-variable-filters.markdown")
         layouts = { "default" => Layout.new(site, source_dir('_layouts'), "simple.html")}
         post.render(layouts, {"site" => {"posts" => []}})
@@ -681,11 +672,7 @@ CONTENT
 
   context "relative include tag with variable and liquid filters" do
     setup do
-      stub(Jekyll).configuration do
-        site_configuration({'pygments' => true})
-      end
-
-      site = Site.new(Jekyll.configuration)
+      site = fixture_site('pygments' => true)
       post = Post.new(site, source_dir, '', "2014-09-02-relative-includes.markdown")
       layouts = { "default" => Layout.new(site, source_dir('_layouts'), "simple.html")}
       post.render(layouts, {"site" => {"posts" => []}})
@@ -730,7 +717,7 @@ CONTENT
         end
 
         should "raise error relative to source directory" do
-          exception = assert_raise IOError do
+          exception = assert_raises IOError do
             create_post(@content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
           end
           assert_equal 'Included file \'./missing.html\' not found', exception.message
@@ -749,7 +736,7 @@ CONTENT
         end
 
         should "raise error relative to source directory" do
-          exception = assert_raise ArgumentError do
+          exception = assert_raises ArgumentError do
             create_post(@content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
           end
           assert_equal "Invalid syntax for include tag. File contains invalid characters or sequences:\n\n  ../README.markdown\n\nValid syntax:\n\n  {% include_relative file.ext param='value' param2='value' %}\n\n", exception.message
@@ -761,7 +748,7 @@ CONTENT
 
       should "not allow symlink includes" do
         File.open("tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
-        assert_raise IOError do
+        assert_raises IOError do
           content = <<CONTENT
 ---
 title: Include symlink
@@ -772,11 +759,11 @@ title: Include symlink
 CONTENT
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true, 'safe' => true })
         end
-        assert_no_match /SYMLINK TEST/, @result
+        refute_match /SYMLINK TEST/, @result
       end
 
       should "not expose the existence of symlinked files" do
-        ex = assert_raise IOError do
+        ex = assert_raises IOError do
           content = <<CONTENT
 ---
 title: Include symlink

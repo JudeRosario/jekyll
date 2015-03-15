@@ -1,7 +1,6 @@
 require 'fileutils'
 require 'posix-spawn'
-require 'rr'
-require 'test/unit'
+require 'minitest/assertions'
 require 'time'
 
 JEKYLL_SOURCE_DIR = File.dirname(File.dirname(File.dirname(__FILE__)))

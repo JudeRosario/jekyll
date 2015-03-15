@@ -25,11 +25,11 @@ having to modify the Jekyll source itself.
 
 You have 3 options for installing plugins:
 
-1. In your site source root, make a `_plugins` directory. Place your plugins here.
-    Any file ending in `*.rb` inside this directory will be loaded before Jekyll
-    generates your site.
-2. In your `_config.yml` file, add a new array with the key `gems` and the values
-    of the gem names of the plugins you'd like to use. An example:
+1. In your site source root, make a `_plugins` directory. Place your plugins
+here. Any file ending in `*.rb` inside this directory will be loaded before
+Jekyll generates your site.
+2. In your `_config.yml` file, add a new array with the key `gems` and the
+values of the gem names of the plugins you'd like to use. An example:
 
         gems: [jekyll-test-plugin, jekyll-jsonify, jekyll-assets]
         # This will require each of these gems automatically.
@@ -42,12 +42,13 @@ You have 3 options for installing plugins:
 
 <div class="note info">
   <h5>
-    <code>_plugins</code> and <code>gems</code>
+    <code>_plugins</code>, <code>_config.yml</code> and <code>Gemfile</code>
     can be used simultaneously
   </h5>
   <p>
-    You may use both of the aforementioned plugin options simultaneously in the
-    same site if you so choose. Use of one does not restrict the use of the other
+    You may use any of the aforementioned plugin options simultaneously in the
+    same site if you so choose. Use of one does not restrict the use of the
+    others.
   </p>
 </div>
 
@@ -383,10 +384,10 @@ And we would get something like this on the page:
 
 ### Liquid filters
 
-You can add your own filters to the Liquid template system much like you can add
-tags above. Filters are simply modules that export their methods to liquid. All
-methods will have to take at least one parameter which represents the input of
-the filter. The return value will be the output of the filter.
+You can add your own filters to the Liquid template system much like you can
+add tags above. Filters are simply modules that export their methods to liquid.
+All methods will have to take at least one parameter which represents the input
+of the filter. The return value will be the output of the filter.
 
 {% highlight ruby %}
 module Jekyll
@@ -476,7 +477,8 @@ You can find a few useful plugins at the following locations:
 #### Generators
 
 - [ArchiveGenerator by Ilkka Laukkanen](https://gist.github.com/707909): Uses [this archive page](https://gist.github.com/707020) to generate archives.
-- [LESS.js Generator by Andy Fowler](https://gist.github.com/642739): Renders LESS.js files during generation.
+- [LESS.js Generator by Andy Fowler](https://gist.github.com/642739): Renders
+LESS.js files during generation.
 - [Version Reporter by Blake Smith](https://gist.github.com/449491): Creates a version.html file containing the Jekyll version.
 - [Sitemap.xml Generator by Michael Levin](https://github.com/kinnetica/jekyll-plugins): Generates a sitemap.xml file by traversing all of the available posts and pages.
 - [Full-text search by Pascal Widdershoven](https://github.com/PascalW/jekyll_indextank): Adds full-text search to your Jekyll site with a plugin and a bit of JavaScript.
@@ -493,6 +495,7 @@ You can find a few useful plugins at the following locations:
 - [Jekyll::AutolinkEmail by Ivan Tse](https://github.com/ivantsepp/jekyll-autolink_email): Autolink your emails.
 - [Jekyll::GitMetadata by Ivan Tse](https://github.com/ivantsepp/jekyll-git_metadata): Expose Git metadata for your templates.
 - [Jekyll Http Basic Auth Plugin](https://gist.github.com/snrbrnjna/422a4b7e017192c284b3): Plugin to manage http basic auth for jekyll generated pages and directories.
+- [Jekyll Auto Image by Merlos](https://github.com/merlos/jekyll-auto-image): Gets the first image of a post. Useful to list your posts with images or to add [twitter cards](https://dev.twitter.com/cards/overview) to your site.
 
 #### Converters
 
@@ -534,6 +537,7 @@ You can find a few useful plugins at the following locations:
 - [Deprecated articles keeper](https://github.com/kzykbys/JekyllPlugins) by [Kazuya Kobayashi](http://blog.kazuya.co/): A simple Jekyll filter which monitor how old an article is.
 - [Jekyll-jalali](https://github.com/mehdisadeghi/jekyll-jalali) by [Mehdi Sadeghi](http://mehdix.ir): A simple Gregorian to Jalali date converter filter.
 - [Jekyll Thumbnail Filter](https://github.com/matallo/jekyll-thumbnail-filter): Related posts thumbnail filter.
+- [Jekyll-Smartify](https://github.com/pathawks/jekyll-smartify): SmartyPants filter. Make &quot;quotes&quot; &ldquo;curly&rdquo;
 
 #### Tags
 
@@ -565,7 +569,7 @@ You can find a few useful plugins at the following locations:
 - [JekyllGalleryTag](https://github.com/redwallhp/JekyllGalleryTag) by [redwallhp](https://github.com/redwallhp): Generates thumbnails from a directory of images and displays them in a grid.
 - [Youku and Tudou Embed](https://gist.github.com/Yexiaoxing/5891929): Liquid plugin for embedding Youku and Tudou videos.
 - [Jekyll-swfobject](https://github.com/sectore/jekyll-swfobject): Liquid plugin for embedding Adobe Flash files (.swf) using [SWFObject](http://code.google.com/p/swfobject/).
-- [Jekyll Picture Tag](https://github.com/robwierzbowski/jekyll-picture-tag): Easy responsive images for Jekyll. Based on the proposed [`<picture>`](http://picture.responsiveimages.org/) element, polyfilled with Scott Jehl’s [Picturefill](https://github.com/scottjehl/picturefill).
+- [Jekyll Picture Tag](https://github.com/robwierzbowski/jekyll-picture-tag): Easy responsive images for Jekyll. Based on the proposed [`<picture>`](https://html.spec.whatwg.org/multipage/embedded-content.html#the-picture-element) element, polyfilled with Scott Jehl’s [Picturefill](https://github.com/scottjehl/picturefill).
 - [Jekyll Image Tag](https://github.com/robwierzbowski/jekyll-image-tag): Better images for Jekyll. Save image presets, generate resized images, and add classes, alt text, and other attributes.
 - [Ditaa Tag](https://github.com/matze/jekyll-ditaa) by [matze](https://github.com/matze): Renders ASCII diagram art into PNG images and inserts a figure tag.
 - [Jekyll Suggested Tweet](https://github.com/davidensinger/jekyll-suggested-tweet) by [David Ensinger](https://github.com/davidensinger/): A Liquid tag for Jekyll that allows for the embedding of suggested tweets via Twitter’s Web Intents API.
@@ -588,7 +592,7 @@ You can find a few useful plugins at the following locations:
 
 #### Collections
 
-- [Jekyll Plugins by Recursive Design](http://recursive-design.com/projects/jekyll-plugins/): Plugins to generate Project pages from GitHub readmes, a Category page, and a Sitemap generator.
+- [Jekyll Plugins by Recursive Design](https://github.com/recurser/jekyll-plugins): Plugins to generate Project pages from GitHub readmes, a Category page, and a Sitemap generator.
 - [Company website and blog plugins](https://github.com/flatterline/jekyll-plugins) by Flatterline, a [Ruby on Rails development company](http://flatterline.com/): Portfolio/project page generator, team/individual page generator, an author bio liquid tag for use on posts, and a few other smaller plugins.
 - [Jekyll plugins by Aucor](https://github.com/aucor/jekyll-plugins): Plugins for trimming unwanted newlines/whitespace and sorting pages by weight attribute.
 
@@ -622,7 +626,7 @@ You can find a few useful plugins at the following locations:
 
 #### Editors
 
-- [sublime-jekyll](https://github.com/23maverick23/sublime-jekyll): A Sublime Text package for Jekyll static sites. This package should help creating Jekyll sites and posts easier by providing access to key template tags and filters, as well as common completions and a current date/datetime command (for dating posts). You can install this package manually via GitHub, or via [Package Control](https://sublime.wbond.net/packages/Jekyll).
+- [sublime-jekyll](https://github.com/23maverick23/sublime-jekyll): A Sublime Text package for Jekyll static sites. This package should help creating Jekyll sites and posts easier by providing access to key template tags and filters, as well as common completions and a current date/datetime command (for dating posts). You can install this package manually via GitHub, or via [Package Control](https://packagecontrol.io/packages/Jekyll).
 - [vim-jekyll](https://github.com/parkr/vim-jekyll): A vim plugin to generate
   new posts and run `jekyll build` all without leaving vim.
 - [markdown-writer](https://atom.io/packages/markdown-writer): An Atom package for Jekyll. It can create new posts/drafts, manage tags/categories, insert link/images and add many useful key mappings.

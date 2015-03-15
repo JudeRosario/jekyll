@@ -10,6 +10,8 @@
   * Remove most runtime deps (#3323)
   * Move to Rouge as default highlighter (#3323)
   * Mimic GitHub Pages `.html` extension stripping behavior in WEBrick (#3452)
+  * Always include file extension on output files (#3490)
+  * Improved permalinks for pages and collections (#3538)
 
 ### Minor Enhancements
 
@@ -41,6 +43,14 @@
   * Site template: Optimize text rendering for legibility (#3382)
   * Add `draft?` method to identify if Post is a Draft & expose to Liquid (#3456)
   * Write regeneration metadata even on full rebuild (#3464)
+  * Perf: Use `String#end_with?("/")` instead of regexp when checking paths (#3516)
+  * Docs: document 'ordinal' built-in permalink style (#3532)
+  * Upgrade liquid-c to 3.x (#3531)
+  * Use consistent syntax for deprecation warning (#3535)
+  * Added build --destination and --source flags (#3418)
+  * Site template: remove unused `page.meta` attribute (#3537)
+  * Improve the error message when sorting null objects (#3520)
+  * Add jekyll-smartify plugin (#3572)
 
 ### Bug Fixes
 
@@ -61,6 +71,9 @@
   * The highlight tag should only clip the newlines before and after the *entire* block, not in between (#3401)
   * highlight: fix problem with linenos and rouge. (#3436)
   * `Site#read_data_file`: read CSV's with proper file encoding (#3455)
+  * Ignore `.jekyll-metadata` in site template (#3496)
+  * Template: Point documentation link to the documentation pages (#3502)
+  * Removed the trailing slash from the example `/blog` baseurl comment (#3485)
 
 ### Development Fixes
 
@@ -77,9 +90,20 @@
   * Factor out a `read_data_file` call to keep things clean (#3380)
   * Proof the site with CircleCI. (#3427)
   * Update LICENSE to 2015. (#3477)
+  * Upgrade tests to use Minitest (#3492)
+  * Remove trailing whitespace (#3497)
+  * Use `fixture_site` for Document tests (#3511)
+  * Remove adapters deprecation warning (#3529)
+  * Minor fixes to `url.rb` to follow GitHub style guide (#3544)
+  * Minor changes to resolve deprecation warnings (#3547)
+  * Convert remaining textile test documents to markdown (#3528)
+  * Migrate the tests to use rspec-mocks (#3552)
 
 ### Site Enhancements
 
+  * Add blog post announcing Jekyll Help (#3523)
+  * Add Jekyll Talk to Help page on site (#3518)
+  * Change Ajax pagination resource link to use HTTPS (#3570)
   * Fixing the default host on docs (#3229)
   * Add `jekyll-thumbnail-filter` to list of third-party plugins (#2790)
   * Add link to 'Adding Ajax pagination to Jekyll' to Resources page (#3186)
@@ -111,6 +135,13 @@
   * Fix Twitter link on the help page (#3466)
   * Fix wording in code snippet highlighting section (#3475)
   * Add a `/` to `paginate_path` in the Pagination documentation (#3479)
+  * Add a link on all the docs pages to "Improve this page". (#3510)
+  * Add jekyll-auto-image generator to the list of third-party plugins (#3489)
+  * Replace link to the proposed `picture` element spec (#3530)
+  * Add frontmatter date formatting information (#3469)
+  * Improve consistency and clarity of plugins options note (#3546)
+  * Add permalink warning to pagination docs (#3551)
+  * Fix grammar in Collections docs API stability warning (#3560)
 
 ## 2.5.3 / 2014-12-22
 

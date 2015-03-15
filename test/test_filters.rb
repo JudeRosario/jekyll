@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestFilters < Test::Unit::TestCase
+class TestFilters < JekyllUnitTest
   class JekyllFilter
     include Jekyll::Filters
     attr_accessor :site, :context
@@ -280,6 +280,12 @@ class TestFilters < Test::Unit::TestCase
     end
 
     context "sort filter" do
+      should "raise Exception when input is nil" do
+        err = assert_raises ArgumentError do
+          @filter.sort(nil)
+        end
+        assert_equal "Cannot sort a null object.", err.message
+      end
       should "return sorted numbers" do
         assert_equal [1, 2, 2.2, 3], @filter.sort([3, 2.2, 2, 1])
       end

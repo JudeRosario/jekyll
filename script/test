@@ -8,6 +8,10 @@ if [ ! -d tmp ]; then
   mkdir tmp
 fi
 
+if [ -d test/dest ]; then
+  rm -r test/dest
+fi
+
 if [ -z "$1" ]; then
   TEST_FILES=$(ruby -e "puts Dir.glob('test/test_*.rb')")
 else
@@ -16,4 +20,4 @@ fi
 
 set -x
 
-time bundle exec ruby -Ilib -Itest -rloader $TEST_FILES
+time bundle exec ruby -Ilib -Itest -rloader $TEST_FILES --profile

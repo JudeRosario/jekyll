@@ -1,13 +1,17 @@
-require 'simplecov'
-require 'simplecov-gem-adapter'
-SimpleCov.start('gem') do
-  add_filter "/vendor/bundle"
-  add_filter "/vendor/gem"
+unless ENV['TRAVIS']
+  require File.expand_path('../simplecov_custom_profile', __FILE__)
+  SimpleCov.start('gem') do
+    add_filter "/vendor/bundle"
+    add_filter "/vendor/gem"
+  end
 end
 
 require 'rubygems'
-require 'test/unit'
 require 'ostruct'
+require 'minitest/autorun'
+require 'minitest/reporters'
+require 'minitest/profile'
+require 'rspec/mocks'
 
 require 'jekyll'
 
@@ -16,15 +20,29 @@ require 'kramdown'
 require 'redcarpet'
 
 require 'shoulda'
-require 'rr'
 
 include Jekyll
 
 # Send STDERR into the void to suppress program output messages
 STDERR.reopen(test(?e, '/dev/null') ? '/dev/null' : 'NUL:')
 
-class Test::Unit::TestCase
-  include RR::Adapters::TestUnit
+# Report with color.
+Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
+
+class JekyllUnitTest < Minitest::Test
+  include ::RSpec::Mocks::ExampleMethods
+
+  def before_setup
+    ::RSpec::Mocks.setup
+    super
+  end
+
+  def after_teardown
+    super
+    ::RSpec::Mocks.verify
+  ensure
+    ::RSpec::Mocks.teardown
+  end
 
   def fixture_site(overrides = {})
     Jekyll::Site.new(site_configuration(overrides))
@@ -35,7 +53,10 @@ class Test::Unit::TestCase
   end
 
   def site_configuration(overrides = {})
-    full_overrides = build_configs(overrides, build_configs({"destination" => dest_dir}))
+    full_overrides = build_configs(overrides, build_configs({
+      "destination" => dest_dir,
+      "full_rebuild" => true
+    }))
     build_configs({
       "source" => source_dir
     }, full_overrides)
