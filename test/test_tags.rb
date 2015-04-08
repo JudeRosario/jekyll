@@ -4,11 +4,15 @@ require 'helper'
 
 class TestTags < JekyllUnitTest
 
+  def setup
+    FileUtils.mkdir_p("tmp")
+  end
+
   def create_post(content, override = {}, converter_class = Jekyll::Converters::Markdown)
     site = fixture_site({"highlighter" => "rouge"}.merge(override))
 
     if override['read_posts']
-      site.read_posts('')
+      site.posts.concat(PostReader.new(site).read(''))
     end
 
     info = { :filters => [Jekyll::Filters], :registers => { :site => site } }

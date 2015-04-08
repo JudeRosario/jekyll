@@ -538,6 +538,7 @@ LESS.js files during generation.
 - [Jekyll-jalali](https://github.com/mehdisadeghi/jekyll-jalali) by [Mehdi Sadeghi](http://mehdix.ir): A simple Gregorian to Jalali date converter filter.
 - [Jekyll Thumbnail Filter](https://github.com/matallo/jekyll-thumbnail-filter): Related posts thumbnail filter.
 - [Jekyll-Smartify](https://github.com/pathawks/jekyll-smartify): SmartyPants filter. Make &quot;quotes&quot; &ldquo;curly&rdquo;
+- [liquid-md5](https://github.com/pathawks/liquid-md5): Returns an MD5 hash. Helpful for generating Gravatars in templates.
 
 #### Tags
 
@@ -589,6 +590,7 @@ LESS.js files during generation.
 - [inline\_highlight](https://github.com/bdesham/inline_highlight): A tag for inline syntax highlighting.
 - [jekyll-mermaid](https://github.com/jasonbellamy/jekyll-mermaid): Simplify the creation of mermaid diagrams and flowcharts in your posts and pages.
 - [twa](https://github.com/Ezmyrelda/twa): Twemoji Awesome plugin for Jekyll. Liquid tag allowing you to use twitter emoji in your jekyll pages.
+- [jekyll-files](https://github.com/x43x61x69/jekyll-files) by [Zhi-Wei Cai](http://vox.vg/): Output relative path strings and other info regarding specific assets.
 
 #### Collections
 
