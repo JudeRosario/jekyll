@@ -85,6 +85,10 @@
   * Removed the trailing slash from the example `/blog` baseurl comment (#3485)
   * Clear the regenerator cache every time we process (#3592)
   * Readd (bring back) minitest-profile (#3628)
+  * Add WOFF2 font MIME type to Jekyll server MIME types (#3647)
+  * Be smarter about extracting the extname in `StaticFile` (#3632)
+  * Process metadata for all dependencies (#3608)
+  * Show error message if the YAML front matter on a page/post is invalid. (#3643)
 
 ### Development Fixes
 
@@ -111,6 +115,7 @@
   * Convert remaining textile test documents to markdown (#3528)
   * Migrate the tests to use rspec-mocks (#3552)
   * Remove `activesupport` (#3612)
+  * Added tests for `Jekyll:StaticFile` (#3633)
 
 ### Site Enhancements
 
@@ -165,6 +170,9 @@
   * Add `jekyll-files` to the list of third-party plugins. (#3586)
   * Define the `install` step in the CI example `.travis.yml` (#3622)
   * Expand collections documentation. (#3638)
+  * Add the "warning" note label to excluding `vendor` in the CI docs page (#3623)
+  * Upgrade pieces of the Ugrading guide for Jekyll 3 (#3607)
+  * Showing how to access specific data items (#3468)
 
 ## 2.5.3 / 2014-12-22
 
